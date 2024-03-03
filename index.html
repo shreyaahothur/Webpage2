@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Validation and Submission</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-image: url('img.jpg'); /* Replace 'background_image.jpg' with the path to your image file */
+        background-size: cover;
+    }
+
+    form {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+        width: 500px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="range"],
+    input[type="radio"] {
+        width: calc(100% - 20px);
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .error {
+        color: red;
+        font-size: 12px;
+    }
+
+    button[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+
+    /* Align radio buttons and labels */
+    .radio-group {
+        margin-bottom: 10px;
+    }
+
+    table {
+        width: 100%;
+    }
+
+    table td {
+        padding: 5px;
+    }
+</style>
+</head>
+<body>
+
+
+<form id="myForm">
+    <h2>Form Validation and Submission</h2>
+
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <span id="nameError" class="error"></span>
+    </div>
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <span id="emailError" class="error"></span>
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <span id="passwordError" class="error"></span>
+    </div>
+    <div>
+        <label for="age">Age:</label>
+        <input type="range" id="age" name="age" min="0" max="100" required>
+        <span id="ageValue">0</span>
+        <span id="ageError" class="error"></span>
+    </div>
+    <div>Gender:</div>
+    <div class="radio-group">
+        <table>
+            <tr>
+                <td>
+                    <input type="radio" id="male" name="gender" value="male" required>
+                    <label for="male">Male</label>
+                </td>
+                <td>
+                    <input type="radio" id="female" name="gender" value="female">
+                    <label for="female">Female</label>
+                </td>
+                <td>
+                    <input type="radio" id="other" name="gender" value="other">
+                    <label for="other">Other</label>
+                </td>
+            </tr>
+        </table>
+        <span id="genderError" class="error"></span>
+    </div>
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    const form = document.getElementById('myForm');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const ageInput = document.getElementById('age');
+    const genderInputs = document.querySelectorAll('input[name="gender"]');
+    const nameError = document.getElementById('nameError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const ageError = document.getElementById('ageError');
+    const genderError = document.getElementById('genderError');
+    const ageValue = document.getElementById('ageValue');
+
+    // Set default age value to 0
+    ageValue.textContent = ageInput.value;
+
+    ageInput.addEventListener('input', function() {
+        ageValue.textContent = ageInput.value;
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Reset error messages
+        nameError.textContent = '';
+        emailError.textContent = '';
+        passwordError.textContent = '';
+        ageError.textContent = '';
+        genderError.textContent = '';
+
+        // Perform validation
+        let isValid = true;
+
+        if (!nameInput.value || !isNameValid(nameInput.value)) {
+            nameError.textContent = 'Name is required and should contain only letters';
+            isValid = false;
+        }
+
+        if (!emailInput.value || !emailInput.validity.valid) {
+            emailError.textContent = 'Please enter a valid email address';
+            isValid = false;
+        }
+
+        if (!passwordInput.value || !isPasswordValid(passwordInput.value)) {
+            passwordError.textContent = 'Password must be at least 8 characters long and contain alphanumeric characters';
+            isValid = false;
+        }
+
+        if (ageInput.value < 18) {
+            ageError.textContent = 'Age must be at least 18';
+            isValid = false;
+        }
+
+        let isGenderSelected = false;
+        genderInputs.forEach(input => {
+            if (input.checked) {
+                isGenderSelected = true;
+            }
+        });
+
+        if (!isGenderSelected) {
+            genderError.textContent = 'Please select a gender';
+            isValid = false;
+        }
+
+        if (isValid) {
+            // Form submission successful
+            alert('Form submitted successfully');
+            // Display submitted data
+            displaySubmittedData();
+            // Clear form fields
+            form.reset();
+        }
+    });
+
+    function isNameValid(name) {
+        return /^[a-zA-Z]+$/.test(name);
+    }
+
+    function isPasswordValid(password) {
+        return /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/.test(password);
+    }
+
+    function displaySubmittedData() {
+        // Prepare the message to display
+        let message = "Thank you for your submission!\n\n";
+        message += "Name: " + nameInput.value + "\n";
+        message += "Email: " + emailInput.value + "\n";
+        message += "Age: " + ageInput.value + "\n";
+        let selectedGender;
+        genderInputs.forEach(input => {
+            if (input.checked) {
+                selectedGender = input.value;
+                message += "Gender: " + selectedGender + "\n";
+            }
+        });
+
+        // Show the pop-up alert with the message
+        alert(message);
+    }
+</script>
+
+
+</body>
+</html>
